@@ -26,7 +26,7 @@ def main():
     if not bot_token:
         logger.error("TELEGRAM_BOT_TOKEN environment variable is required!")
         return
-    
+    PORT = int(os.environ.get("PORT", 8443))
     # Create application
     application = Application.builder().token(bot_token).build()
     
