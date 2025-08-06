@@ -26,6 +26,8 @@ RUN pip install --no-cache-dir --upgrade pip && \
     opencv-python \
     numpy \
     flask \
+    requests==2.32.4 \
+    python-dotenv==1.1.1 \
     && pip cache purge
 
 # Create directories
@@ -40,7 +42,7 @@ RUN useradd --create-home --shell /bin/bash botuser && \
 USER botuser
 
 # Expose ports
-EXPOSE 5000
+EXPOSE 5000 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
