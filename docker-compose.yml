@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  telegram-bot:
+    build: .
+    container_name: telegram-image-bot
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
+      - PORT=5000
+    ports:
+      - "5000:5000"
+    volumes:
+      - bot_images:/tmp/bot_images
+      - ./logs:/app/logs
+    networks:
+      - bot-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5000/api/bot/status', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    command: python main.py
+
+  webhook-server:
+    build: .
+    container_name: telegram-webhook-server
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
+      - PORT=5001
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - bot-network
+    depends_on:
+      - telegram-bot
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    command: python webhook_server.py
+    environment:
+      - PORT=5001
+
+  nginx:
+    image: nginx:alpine
+    container_name: telegram-bot-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    networks:
+      - bot-network
+    depends_on:
+      - webhook-server
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  bot_images:
+    driver: local
+
+networks:
+  bot-network:
+    driver: bridge
