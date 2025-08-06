@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Image Enhancement Bot - Webhook Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="position-sticky pt-3">
+                    <h4 class="text-center mb-4">
+                        <i class="bi bi-robot"></i> Bot Manager
+                    </h4>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#webhook-section">
+                                <i class="bi bi-link-45deg"></i> Webhook Setup
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#bot-info">
+                                <i class="bi bi-info-circle"></i> Bot Information
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#statistics">
+                                <i class="bi bi-bar-chart"></i> Statistics
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#settings">
+                                <i class="bi bi-gear"></i> Settings
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Telegram Image Enhancement Bot</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshStatus()">
+                                <i class="bi bi-arrow-clockwise"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bot Status Card -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5><i class="bi bi-activity text-success"></i> Bot Status</h5>
+                                        <p class="mb-1"><strong>Status:</strong> <span id="bot-status" class="badge bg-success">Running</span></p>
+                                        <p class="mb-1"><strong>Mode:</strong> <span id="bot-mode">Polling</span></p>
+                                        <p class="mb-0"><strong>Last Update:</strong> <span id="last-update">Just now</span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h5><i class="bi bi-graph-up text-primary"></i> Statistics</h5>
+                                        <p class="mb-1"><strong>Images Processed:</strong> <span id="images-processed">--</span></p>
+                                        <p class="mb-1"><strong>Active Users:</strong> <span id="active-users">--</span></p>
+                                        <p class="mb-0"><strong>Uptime:</strong> <span id="uptime">--</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Webhook Configuration Section -->
+                <div id="webhook-section" class="section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="bi bi-link-45deg"></i> Webhook Configuration</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <form id="webhook-form">
+                                        <div class="mb-3">
+                                            <label for="webhook-url" class="form-label">Webhook URL</label>
+                                            <div class="input-group">
+                                                <input type="url" class="form-control" id="webhook-url" 
+                                                       placeholder="https://your-domain.com/webhook" required>
+                                                <button class="btn btn-outline-secondary" type="button" onclick="generateWebhookUrl()">
+                                                    <i class="bi bi-magic"></i> Auto-generate
+                                                </button>
+                                            </div>
+                                            <div class="form-text">The HTTPS URL where Telegram will send updates</div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="secret-token" class="form-label">Secret Token (Optional)</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="secret-token" 
+                                                       placeholder="Your secret token for webhook security">
+                                                <button class="btn btn-outline-secondary" type="button" onclick="generateSecretToken()">
+                                                    <i class="bi bi-key"></i> Generate
+                                                </button>
+                                            </div>
+                                            <div class="form-text">Optional security token to verify webhook calls</div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="drop-pending-updates">
+                                                <label class="form-check-label" for="drop-pending-updates">
+                                                    Drop pending updates
+                                                </label>
+                                                <div class="form-text">Clear any pending updates when setting webhook</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-check-circle"></i> Set Webhook
+                                            </button>
+                                            <button type="button" class="btn btn-warning" onclick="deleteWebhook()">
+                                                <i class="bi bi-trash"></i> Delete Webhook
+                                            </button>
+                                            <button type="button" class="btn btn-info" onclick="getWebhookInfo()">
+                                                <i class="bi bi-info-circle"></i> Get Info
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-header">
+                                            <h6><i class="bi bi-lightbulb"></i> Webhook Tips</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <ul class="small">
+                                                <li>URL must use HTTPS</li>
+                                                <li>Port 443, 80, 88, or 8443 only</li>
+                                                <li>Certificate must be valid</li>
+                                                <li>Response must be HTTP 200</li>
+                                                <li>Max 40MB file uploads</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Webhook Status Section -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="bi bi-clipboard-data"></i> Webhook Status</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="webhook-info" class="row">
+                                    <div class="col-12">
+                                        <div class="alert alert-info">
+                                            <i class="bi bi-info-circle"></i> Click "Get Info" to view current webhook configuration
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="bi bi-clock-history"></i> Recent Activities</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="activity-log">
+                                    <div class="d-flex align-items-center">
+                                        <div class="spinner-border spinner-border-sm me-2" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        Loading recent activities...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-check-circle text-success"></i> Success</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="success-message">Operation completed successfully!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle text-danger"></i> Error</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="error-message">An error occurred. Please try again.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/webhook.js"></script>
+</body>
+</html>
