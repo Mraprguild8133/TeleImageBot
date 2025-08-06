@@ -9,7 +9,15 @@ class Config:
     
     # Bot settings
     BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-    PORT = int(os.environ.get("PORT", 5000))
+    # Server Configuration
+        self.webhook_host = os.getenv('WEBHOOK_HOST', '0.0.0.0')
+        self.webhook_port = int(os.getenv('WEBHOOK_PORT', '8000'))
+        self.web_host = os.getenv('WEB_HOST', '0.0.0.0')
+        self.web_port = int(os.getenv('WEB_PORT', '5000'))# Server Configuration
+        self.webhook_host = os.getenv('WEBHOOK_HOST', '0.0.0.0')
+        self.webhook_port = int(os.getenv('WEBHOOK_PORT', '8000'))
+        self.web_host = os.getenv('WEB_HOST', '0.0.0.0')
+        self.web_port = int(os.getenv('WEB_PORT', '5000'))
     # Image processing settings
     MAX_FILE_SIZE = 20 * 1024 * 1024  # 20MB max file size
     SUPPORTED_FORMATS = ['JPEG', 'PNG', 'WEBP', 'BMP', 'TIFF']
