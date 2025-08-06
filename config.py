@@ -10,6 +10,8 @@ class Config:
     # Bot settings
     BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
+    # Web Service 
+    PORT = os.getenv("PORTS")
     # Image processing settings
     MAX_FILE_SIZE = 20 * 1024 * 1024  # 20MB max file size
     SUPPORTED_FORMATS = ['JPEG', 'PNG', 'WEBP', 'BMP', 'TIFF']
