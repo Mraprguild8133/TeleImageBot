@@ -25,6 +25,8 @@ app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 bot = None
 
+# Web Service 
+PORT = os.getenv("PORTS")
 # Statistics tracking
 stats = {
     'start_time': datetime.now(),
